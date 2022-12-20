@@ -1,0 +1,24 @@
+### Get a list of employees
+GET http://localhost:3000/api/employees
+
+### Create a Employee
+POST  http://localhost:3000/api/employees
+Content-Type: application/json
+
+{
+  "firstName": "Thinura",
+  "lastName": "Kum",
+  "email": "thinuralaksara@gmail.com",
+  "mobile": "+945678344",
+  "gender": "MALE",
+  "photo": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%3Fid%3DOIP.ra_CAN0iKoeVxjSg3Vzf6QHaEK%26pid%3DApi&f=1&ipt=9aa51801a1e54c6b32e02f06e0ba578a176f360ae9747002bdbdf75ef3284d2e&ipo=images"
+}
+
+### Get a employee by employee id
+GET http://localhost:3000/api/employees/12312
+
+### Update a Employee details
+PUT http://localhost:3000/api/employees/12312
+
+### Delete a Employee
+DELETE http://localhost:3000/api/employees/12312

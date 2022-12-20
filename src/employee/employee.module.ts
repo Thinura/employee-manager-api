@@ -4,10 +4,11 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { EmployeeService } from './employee.service';
 import { EmployeeController } from './employee.controller';
 import { Employee, EmployeeSchema } from './models';
+import { EmployeeRepository } from './employee.repository';
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: Employee.name, schema: EmployeeSchema }])],
-  providers: [EmployeeService],
+  providers: [EmployeeService, EmployeeRepository],
   controllers: [EmployeeController],
   exports: [EmployeeService],
 })

@@ -1,20 +1,15 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
-import { ClientSession } from 'mongoose';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { isEmpty } from 'lodash';
+import mongoose, { ClientSession } from 'mongoose';
 
 import { EmployeeRepository } from './employee.repository';
 import { EmployeeCreation, FilterEmployeeOptions } from './dto';
 import { formatCreationEmployee } from './utils';
+import { NotImplementedException } from '@nestjs/common/exceptions';
 
 @Injectable()
 export class EmployeeService {
-  constructor(private employeeRepository: EmployeeRepository, private session: ClientSession) {}
+  constructor(private employeeRepository: EmployeeRepository) {}
 
   public async validateEmployeeById(employeeId: string) {
     const employee = await this.employeeRepository.getEmployeeById(employeeId);
@@ -34,23 +29,18 @@ export class EmployeeService {
    *
    */
   public async getEmployeeDetailList(data: FilterEmployeeOptions) {
-    try {
-      const { search, sort, searchBy, sortBy } = data;
-      const employeeLists = await this.employeeRepository.employeeLists(
-        search,
-        searchBy,
-        sort,
-        sortBy,
-      );
-      if (isEmpty(employeeLists)) {
-        throw new HttpException({}, HttpStatus.NO_CONTENT);
-      }
-
-      return { employeeLists };
-    } catch (error) {
-      console.log(error);
-      throw new InternalServerErrorException(error);
+    const { search, sort, searchBy, sortBy } = data;
+    const employeeLists = await this.employeeRepository.employeeLists(
+      search,
+      searchBy,
+      sort,
+      sortBy,
+    );
+    if (isEmpty(employeeLists)) {
+      throw new HttpException({}, HttpStatus.NO_CONTENT);
     }
+
+    return { employeeLists };
   }
 
   /**
@@ -59,13 +49,8 @@ export class EmployeeService {
    *
    */
   public async getEmployeeById(employeeId: string) {
-    try {
-      const employee = await this.validateEmployeeById(employeeId);
-      return employee;
-    } catch (error) {
-      console.log(error);
-      throw new InternalServerErrorException(error);
-    }
+    const employee = await this.validateEmployeeById(employeeId);
+    return employee;
   }
 
   /**
@@ -80,17 +65,23 @@ export class EmployeeService {
    *
    */
   public async createEmployee(data: EmployeeCreation) {
-    try {
-      const employee = this.employeeRepository.createEmployee(formatCreationEmployee(data));
-      this.session.commitTransaction();
-      return employee;
-    } catch (error) {
-      console.log(error);
-      this.session.abortTransaction();
-      throw new InternalServerErrorException(error);
-    } finally {
-      this.session.endSession();
-    }
+    const session: ClientSession = await mongoose.startSession();
+    if (isEmpty(data.photo))
+      data.photo =
+        'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%3Fid%3DOIP.ra_CAN0iKoeVxjSg3Vzf6QHaEK%26pid%3DApi&f=1&ipt=9aa51801a1e54c6b32e02f06e0ba578a176f360ae9747002bdbdf75ef3284d2e&ipo=images';
+    session.startTransaction();
+    const employee = this.employeeRepository.createEmployee(formatCreationEmployee(data));
+    session.commitTransaction();
+
+    session.endSession();
+    return { employee };
+  }
+
+  public async uploadEmployeeFile(employeeId: string) {
+    const employee = await this.validateEmployeeById(employeeId);
+    throw new NotImplementedException(
+      'upload endpoint not implemented - /employees/upload/:employeeId',
+    );
   }
 
   /**
@@ -105,22 +96,23 @@ export class EmployeeService {
    * @prop {string} photo The photo
    */
   public async updateEmployeeById(employeeId: string, data: EmployeeCreation) {
-    try {
-      const employee = await this.validateEmployeeById(employeeId);
+    const employee = await this.validateEmployeeById(employeeId);
 
-      const updateEmployee = await this.employeeRepository.updateEmployeeById(
-        employee.id,
-        formatCreationEmployee(data),
-      );
-      this.session.commitTransaction();
-      return updateEmployee;
-    } catch (error) {
-      console.log(error);
-      this.session.abortTransaction();
-      throw new InternalServerErrorException(error);
-    } finally {
-      this.session.endSession();
-    }
+    const session: ClientSession = await mongoose.startSession();
+
+    session.startTransaction();
+    if (isEmpty(data.photo))
+      data.photo =
+        'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%3Fid%3DOIP.ra_CAN0iKoeVxjSg3Vzf6QHaEK%26pid%3DApi&f=1&ipt=9aa51801a1e54c6b32e02f06e0ba578a176f360ae9747002bdbdf75ef3284d2e&ipo=images';
+
+    const updateEmployee = await this.employeeRepository.updateEmployeeById(
+      employee.id,
+      formatCreationEmployee(data),
+    );
+    session.commitTransaction();
+
+    session.endSession();
+    return updateEmployee;
   }
 
   /**
@@ -129,17 +121,15 @@ export class EmployeeService {
    *
    */
   public async deleteEmployeeById(employeeId: string) {
-    try {
-      const employee = await this.validateEmployeeById(employeeId);
+    const employee = await this.validateEmployeeById(employeeId);
 
-      const deleteEmployee = await this.employeeRepository.deleteEmployeeById(employee.id);
-      this.session.commitTransaction();
-      return deleteEmployee;
-    } catch (error) {
-      this.session.abortTransaction();
-      throw new InternalServerErrorException(error);
-    } finally {
-      this.session.endSession();
-    }
+    const session: ClientSession = await mongoose.startSession();
+
+    session.startTransaction();
+    const deleteEmployee = await this.employeeRepository.deleteEmployeeById(employee.id);
+    session.commitTransaction();
+
+    session.endSession();
+    return deleteEmployee;
   }
 }
