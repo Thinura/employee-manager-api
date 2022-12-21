@@ -5,33 +5,29 @@ services:
   mongo_db:
     container_name: 'db_container'
     image: mongo:latest
-    restart: always
     ports:
       - 27017:27017
     volumes:
-      - mongo_db:/data/db
+      - ./mongo_db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ./mongo_db:/data/db
     environment:
       MONGO_INITDB_DATABASE: employee_db
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: password
 
   # Node API service
-  # api: 
-  #   container_name: 'api_container'
-  #   build: .
-  #   ports:
-  #     - 4000:4000 # 3000 port in the container will be expose as 4000 to local machine
-  #   volumes:
-  #     - .:/usr/src/app
-  #   environment: 
-  #     PORT: 4000
-  #     DATABASE_URL: mongodb://root:password@mongo_db/employee_db
-  #     DB_NAME: employee_db
-  #     DB_USER: root
-  #     DB_PASS: password
-  #     NAME: TrulyMittal
-  #   depends_on:
-  #     - mongo_db
+  api: 
+    container_name: 'api_container'
+    build: .
+    ports:
+      - 4000:4000 # 3000 port in the container will be expose as 4000 to local machine
+    volumes:
+      - .:/usr/src/app
+    environment: 
+      PORT: 4000
+      DATABASE_URL: mongodb://root:password@mongo_db/employee_db
+    depends_on:
+      - mongo_db
 
 volumes:
   mongo_db: {}

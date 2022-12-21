@@ -37,3 +37,7 @@ lerna-debug.log*
 # ENV variables
 .env.*
 !.env.development
+
+# Mongodb development data
+mongo_db/*
+!mongo-init.js
