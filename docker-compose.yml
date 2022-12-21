@@ -20,12 +20,12 @@ services:
   #   container_name: 'api_container'
   #   build: .
   #   ports:
-  #     - 4000:3000 # 3000 port in the container will be expose as 4000 to local machine
+  #     - 4000:4000 # 3000 port in the container will be expose as 4000 to local machine
   #   volumes:
   #     - .:/usr/src/app
   #   environment: 
-  #     PORT: 3000
-  #     DATABASE_URL: mongodb://root:password@localhost:27017/employee_db
+  #     PORT: 4000
+  #     DATABASE_URL: mongodb://root:password@mongo_db/employee_db
   #     DB_NAME: employee_db
   #     DB_USER: root
   #     DB_PASS: password

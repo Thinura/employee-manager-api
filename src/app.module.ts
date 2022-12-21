@@ -5,7 +5,6 @@ import { MulterModule } from '@nestjs/platform-express/multer';
 
 import { EmployeeModule } from './employee/employee.module';
 import { LoggerMiddleware } from './middleware';
-import { TestModule } from './test/test.module';
 
 @Module({
   imports: [
@@ -13,7 +12,6 @@ import { TestModule } from './test/test.module';
     MongooseModule.forRoot(new ConfigService().get('DATABASE_URL')),
     ConfigModule.forRoot({ isGlobal: true }),
     EmployeeModule,
-    TestModule,
   ],
   controllers: [],
   providers: [],
