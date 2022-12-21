@@ -1,13 +1,44 @@
+import {
+  IsEmail,
+  IsEnum,
+  IsMobilePhone,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUrl,
+} from 'class-validator';
+
 export enum GenderOptions {
-  MALE,
-  FEMALE,
+  MALE = 'MALE',
+  FEMALE = 'FEMALE',
 }
 
-export interface EmployeeCreation {
+export class EmployeeCreationDto {
+  @IsString()
+  @IsNotEmpty()
   firstName: string;
+
+  @IsString()
+  @IsNotEmpty()
   lastName: string;
+
+  @IsString()
+  @IsEmail()
+  @IsNotEmpty()
   email: string;
+
+  @IsString()
+  @IsMobilePhone('en-SL')
+  @IsNotEmpty()
   mobile: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsEnum(GenderOptions)
   gender: GenderOptions;
-  photo: string;
+
+  @IsOptional()
+  @IsString()
+  @IsUrl()
+  profilePicture: string;
 }

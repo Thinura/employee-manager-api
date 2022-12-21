@@ -5,3 +5,6 @@ RUN npm ci
 COPY . .
 # For development use only
 CMD [ "npm", "run", "start:debug" ]
+###
+# For production use only
+#CMD [ "npm", "run", "start:prod" ]
